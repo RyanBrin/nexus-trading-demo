@@ -4,37 +4,48 @@
 > it contains **no source code, no strategies, no configuration, and no real data**.
 > The real implementation is kept in a private repository.
 
-Hermes is a **private market-research and paper-trading system** — a personal
-research dashboard for monitoring markets and exercising strategy ideas in
-**paper mode**.
+Hermes is the **trading core inside [Nexus](https://github.com/RyanBrin/nexus-demo)** —
+**manual-first and paper-only**. It powers the plan → confirm → journal workflow:
+market data, watchlists, research surfaces, instrument-scoped review checklists,
+a reconciled paper portfolio, and a trade journal. The platform **never places an
+order**; every trading decision is the user's own.
 
-## What it does
+## History: the autonomous era, retired properly
 
-- Monitors market data and presents it on a private research dashboard.
-- Runs strategies in **paper mode** (simulated) — research/education focused.
-- Applies risk controls and safety limits to any simulated activity.
+Hermes began as an autonomous **paper**-research engine — Elliott Wave and
+Fibonacci analysis over a unified crypto engine (BTC/ETH/SOL) plus a stock
+scanner, with decision logging and a hardcoded risk firewall. That engine was
+**retired non-destructively** into a legacy archive: ~80 modules and their tests
+moved intact, with **archive-boundary tests** that fail the build if live code
+ever imports from the archive again. Retiring a system cleanly — instead of
+deleting it or letting it rot — turned out to be one of the project's best
+engineering lessons.
 
-## Key features
+## What the core enforces today
 
-- Paper-trading by default; safety floors and risk controls.
-- Clear separation between BTC/crypto and stock strategy logic.
-- An isolated options-research lab that is **research/paper-only** (no execution).
-- Reporting and notifications that are dry-run by default.
+- **Paper-only by hard rule** — live trading is disabled everywhere; the safety
+  invariant is written down, tested, and binding on both humans and the AI
+  coding agents that work on the codebase.
+- **Risk floors as constants** — minimum-confidence and risk gates are hardcoded
+  floors, not tunable settings.
+- **Separation of concerns** — stock and crypto logic stay isolated; nothing can
+  alter the core crypto path as a side effect.
+- **A paper ledger with structural honesty** — simulated fills can never carry
+  the attestations of real ones, so nothing simulated ever reaches holdings,
+  analytics, or the journal disguised as real.
 
 ## Privacy & security posture
 
-- **No live trading code, broker/exchange details, or API keys are exposed** in
-  this overview.
-- Paper/research mode by default; real-money execution is out of scope for the
-  public overview.
-- Secrets (exchange/broker keys, tokens, account IDs) live only in private local
-  config and are never committed.
+- **No live trading code, broker/exchange integrations, or API keys are exposed**
+  — the product holds no brokerage credentials and has no trading connection.
+- Secrets live only in private local config and are never committed.
 - No real financial data, balances, or order history is included here.
 
 ## Technologies
 
-- Python (data processing, strategy/research engine)
-- Local dashboards and reporting; private configuration
+- Python (data layer, portfolio reconciliation, safety gating)
+- Market data by symbol only — no account-linked data sources
+- Served through the Nexus platform (FastAPI + vanilla JS)
 
 ## Notes
 
