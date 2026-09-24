@@ -36,8 +36,12 @@ engineering lessons.
 
 ## Privacy & security posture
 
-- **No live trading code, broker/exchange integrations, or API keys are exposed**
-  — the product holds no brokerage credentials and has no trading connection.
+- **No live trading code and no order path.** Market data is read from a
+  broker's data API through a client built so that misuse is structural rather
+  than a matter of discipline: one HTTP verb, and a host-and-path allowlist
+  checked before a socket is opened, so no account or trading endpoint is
+  reachable from the product. The key is a paper-account key, lives only in
+  private config, and is never committed or logged.
 - Secrets live only in private local config and are never committed.
 - No real financial data, balances, or order history is included here.
 
