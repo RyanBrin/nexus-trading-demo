@@ -1,60 +1,56 @@
-# Hermes Trading — Project Overview (Demo)
+# Nexus Trading Core — Project Overview (Demo)
 
-> Public overview of a **private** project. This repository is documentation only —
-> it contains **no source code, no strategies, no configuration, and no real data**.
-> The real implementation is kept in a private repository.
+> Public overview of a **private** project. This repository is documentation only:
+> it contains **no source code, strategies, configuration, credentials, or real data**.
 
-Hermes is the **trading core inside [Nexus](https://github.com/RyanBrin/nexus-demo)** —
-**manual-first and paper-only**. It powers the plan → confirm → journal workflow:
-market data, watchlists, research surfaces, instrument-scoped review checklists,
-a reconciled paper portfolio, and a trade journal. The platform **never places an
-order**; every trading decision is the user's own.
+The Nexus trading core supports a multi-user, manual-execution workflow for research,
+planning, confirmation, portfolio review, and journaling. It does not connect a plan to
+broker execution and **never places an order**.
 
-## History: the autonomous era, retired properly
+## Current workflow
 
-Hermes began as an autonomous **paper**-research engine — Elliott Wave and
-Fibonacci analysis over a unified crypto engine (BTC/ETH/SOL) plus a stock
-scanner, with decision logging and a hardcoded risk firewall. That engine was
-**retired non-destructively** into a legacy archive: ~80 modules and their tests
-moved intact, with **archive-boundary tests** that fail the build if live code
-ever imports from the archive again. Retiring a system cleanly — instead of
-deleting it or letting it rot — turned out to be one of the project's best
-engineering lessons.
+```text
+research -> opportunity -> review -> plan -> human execution outside Nexus -> recorded fill -> journal
+                                           \-> simulated Paper fill ---------> Paper journal
+```
 
-## What the core enforces today
+- Plans and fills are distinct records; creating or approving a plan cannot create an order.
+- Recorded fills require explicit human attestation that execution occurred elsewhere.
+- Paper fills are simulated, cannot carry broker attestation, and remain in a separate ledger.
+- Portfolio and journal views preserve the Recorded/Paper boundary.
+- Stock and crypto paths remain separate so work on one cannot change the other's behavior
+  as a side effect.
 
-- **Paper-only by hard rule** — live trading is disabled everywhere; the safety
-  invariant is written down, tested, and binding on both humans and the AI
-  coding agents that work on the codebase.
-- **Risk floors as constants** — minimum-confidence and risk gates are hardcoded
-  floors, not tunable settings.
-- **Separation of concerns** — stock and crypto logic stay isolated; nothing can
-  alter the core crypto path as a side effect.
-- **A paper ledger with structural honesty** — simulated fills can never carry
-  the attestations of real ones, so nothing simulated ever reaches holdings,
-  analytics, or the journal disguised as real.
+## Safety by construction
 
-## Privacy & security posture
+- There is no order-submission endpoint in the product.
+- External market-data access is symbol-scoped and separated from account or order APIs.
+- User-scoped storage prevents one account from reading or changing another account's data.
+- Risk and workflow gates are tested invariants, not advisory UI text.
+- Public copy and route-inventory tests guard against implying automated execution.
 
-- **No live trading code and no order path.** Market data is read from a
-  broker's data API through a client built so that misuse is structural rather
-  than a matter of discipline: one HTTP verb, and a host-and-path allowlist
-  checked before a socket is opened, so no account or trading endpoint is
-  reachable from the product. The key is a paper-account key, lives only in
-  private config, and is never committed or logged.
-- Secrets live only in private local config and are never committed.
-- No real financial data, balances, or order history is included here.
+## Historical engine
+
+An earlier autonomous paper-research engine covered crypto analysis and stock scanning.
+It was retired non-destructively into an excluded legacy archive. Boundary tests prevent
+the active manual product from importing that archived implementation.
 
 ## Technologies
 
-- Python (data layer, portfolio reconciliation, safety gating)
-- Market data by symbol only — no account-linked data sources
-- Served through the Nexus platform (FastAPI + vanilla JS)
+- Python and FastAPI
+- PostgreSQL with user-scoped persistence
+- Symbol-level market-data adapters
+- pytest-based safety and route-inventory checks
+- Nexus web surfaces for planning, portfolio, and journal workflows
 
-## Notes
+## Privacy and security posture
 
-- The real source code and commit history are **private**.
-- This is **not** financial advice and makes no performance claims. Any examples
-  are **sanitized/mock**.
+- No live-trading code or broker order path is published or active.
+- No real balances, positions, fill history, account identifiers, or market-data credentials
+  are included here.
+- Secrets live only in private configuration and are never logged or committed.
+- Any examples are sanitized or synthetic.
+
+This project makes no financial-performance claim and is not financial advice.
 
 See [`docs/architecture.md`](docs/architecture.md) for a high-level architecture summary.
